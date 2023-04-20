@@ -15,6 +15,7 @@ Pasos para cargar el código fuente en el esp32:
 5º Configura el ssid y password de tu wifi:
 
 const char* ssid = "TU_SSID";
+
 const char* password = "TU_PASSWORD";
 
 
