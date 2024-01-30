@@ -26,7 +26,7 @@ Este trabajo ha sido gracias a la colaboración del grupo de Telegram https://t.
 
 - Ver [Releases](https://github.com/sgsancho/saj_h1_s2_modbus_esp32/releases)
 
-- Ver [Instrucciones](https://github.com/sgsancho/saj_h1_s2_modbus_esp32/blob/main/documentacion/instrucciones_saj_h1s2_modbus.pdf)
+- Ver [Instrucciones](https://github.com/sgsancho/saj_h1_s2_modbus_esp32/blob/main/documentacion/Tutorial_esp32_v1.1.pdf)
 
 - Ver [Modbus EXCEL](https://github.com/sgsancho/saj_h1_s2_modbus_esp32/blob/main/documentacion/SAJ_Modbus_Communication_Protocol_2020.xlsx)
 
