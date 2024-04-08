@@ -10,14 +10,11 @@ Pasos para cargar el código fuente en el esp32:
 
 3º Conecta el esp32 al equipo. Deberás configurar tu tipo de placa. Si tu esp32 es de 4Mb, debes modificar el esquema de particiones como "Huge APP" para tener espacio suficiente.
 
-4º Debes instalar la librería "ESP32 BLE for Arduino" (BLEDevice). Puedes hacerlo desde "Herramientas" / "Administrar bibliotecas" -> "BLEDevice"
+4º Es posible que necesites añadir la librería WiFiManager.h (https://github.com/tzapu/WiFiManager).
 
-5º Configura el ssid y password de tu wifi:
+5º Compila el proyecto en tu esp32.
 
-const char* ssid = "TU_SSID";
-
-const char* password = "TU_PASSWORD";
-
+6º Configura tu wifi. Tu esp32 levantará un punto de acceso wifi. Conectate y accede con el navegador a la dirección http://192.168.4.1. Desde ahí podrás configurar tu wifi.
 
 
 Este trabajo ha sido gracias a la colaboración del grupo de Telegram https://t.me/saj_nooficialoriginal. No es una aplicación oficial y podría dejar de funcionar en cualquier momento.
