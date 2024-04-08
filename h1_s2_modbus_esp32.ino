@@ -1,15 +1,13 @@
+//#include <WiFi.h>
+#include <WiFiManager.h>
 #include "BLEDevice.h"
-#include <WiFi.h>
 
 unsigned long previousMillis = 0;
 unsigned long previousMillistry = 0;
 
 static BLEUUID serviceUUID("0000ffff-0000-1000-8000-00805f9b34fb");
-static BLEUUID    charUUIDw("0000ff01-0000-1000-8000-00805f9b34fb");
-static BLEUUID    charUUID("0000ff02-0000-1000-8000-00805f9b34fb");
-
-const char* ssid = "TU_SSID";
-const char* password = "TU_PASSWORD";
+static BLEUUID charUUIDw("0000ff01-0000-1000-8000-00805f9b34fb");
+static BLEUUID charUUID("0000ff02-0000-1000-8000-00805f9b34fb");
 
 static boolean doConnect_ble = false;
 static boolean connected_ble = false;
@@ -89,6 +87,7 @@ static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, ui
         }
       }
       else {
+        Serial.println("elseeeeeeeeeeeeeeee");
         errlen=0;
         previousMillistry = millis();
         int longitud = abs(pData[7]); //20
@@ -137,6 +136,7 @@ bool connectToServer_ble() {
     
     previousMillistry = millis();
     pClient->connect(myDevice);  
+    pClient->setMTU(512); ///mtu size equals packet limit-3 250
     Serial.println(" - Connected to server");
     
     previousMillistry = millis();
@@ -190,6 +190,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("Connected to WIFI successfully!");
   MBServer.begin();
+  setup_ble();
 }
 
 void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info){
@@ -203,31 +204,39 @@ void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info){
 void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("Disconnected from WiFi access point");
   Serial.print("WiFi lost connection. Reason: ");
-  Serial.println(info.disconnected.reason);
-  
-  Serial.println("Trying to Reconnect");
-  WiFi.begin(ssid, password);
+  Serial.println(info.wifi_sta_disconnected.reason);
 }
 
-void setup_wifi() {
 
+
+void setup_wifi_manager() {
   WiFi.disconnect(true);
 
   delay(1000);
 
-  WiFi.onEvent(WiFiStationConnected, SYSTEM_EVENT_STA_CONNECTED);
-  WiFi.onEvent(WiFiGotIP, SYSTEM_EVENT_STA_GOT_IP);
-  WiFi.onEvent(WiFiStationDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
-  WiFi.begin(ssid, password);
-  WiFi.setAutoReconnect(true);
-  WiFi.persistent(true);
+  WiFi.onEvent(WiFiStationConnected, ARDUINO_EVENT_WIFI_STA_CONNECTED);
+  WiFi.onEvent(WiFiGotIP, ARDUINO_EVENT_WIFI_STA_GOT_IP);
+  WiFi.onEvent(WiFiStationDisconnected, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 
-  Serial.println("Conectando WIFI");
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
-  }
   
+  WiFiManager wm;
+
+  //reset settings - wipe stored credentials for testing
+  //wm.resetSettings();
+
+  bool res;
+  // res = wm.autoConnect(); // auto generated AP name from chipid
+  // res = wm.autoConnect("AutoConnectAP"); // anonymous ap
+  res = wm.autoConnect("ESP32_SAJ_MODBUS"); // password protected ap
+
+  if(!res) {
+        Serial.println("Failed to connect");
+        // ESP.restart();
+  } 
+  else {
+      //if you get here you have connected to the WiFi    
+      Serial.println("connected...yeey :)");
+  }
 }
 
 void setup_ble() {
@@ -246,14 +255,10 @@ void setup_ble() {
   ////////////////////////////////////////////////
 }
 
-
-
-
 void setup() {
 
   Serial.begin(115200);
-  setup_wifi();
-  setup_ble();
+  setup_wifi_manager();
 }
 
 void loop() {
@@ -261,10 +266,6 @@ void loop() {
   unsigned long currentMillis_wifi = millis();
   // if WiFi is down, try reconnecting every CHECK_WIFI_TIME seconds
   if ((WiFi.status() != WL_CONNECTED) && (currentMillis_wifi - previousMillis_wifi >=30000)) {
-    /*Serial.println("Reconnecting to WiFi...");
-    WiFi.disconnect();
-    WiFi.reconnect();
-    previousMillis_wifi = currentMillis_wifi;*/
     Serial.println("Reset 3. Sin conectividad WIFI surante mas de 30 segundos");
     resetFunc();
   }
@@ -297,6 +298,7 @@ void loop() {
         //Serial.println(client);
         return;
       }
+
       byte byteFN = MB_FC_NONE;
   
       // Modbus TCP/IP
@@ -401,7 +403,7 @@ void loop() {
         transaction_identifier_hex[1]=transaction_identifier & 0x000000ff;
         
         byte mosbus_request_final[13] = {
-          (byte) 77,
+        (byte) 77,
           0,
           c,
           (byte) 9,
