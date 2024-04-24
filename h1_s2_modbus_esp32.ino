@@ -136,7 +136,7 @@ bool connectToServer_ble() {
     
     previousMillistry = millis();
     pClient->connect(myDevice);  
-    pClient->setMTU(512); ///mtu size equals packet limit-3 250
+    BLEDevice::setMTU(512); ///mtu size equals packet limit-3 250
     Serial.println(" - Connected to server");
     
     previousMillistry = millis();
